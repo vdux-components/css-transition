@@ -16,7 +16,7 @@ Use this component to apply classes to your nodes when they are being added/remo
 ```javascript
 function render () {
   return (
-    <CSSTransition enter='fade_in' leave='fade_out' enterTimeout={500} leaveTimeout={500}>
+    <CSSTransition name='fade' enterTimeout={500} leaveTimeout={500}>
       <Tooltip />
     </CSSTransition>
   )
@@ -27,10 +27,9 @@ The `fade_in` class will be applied to each of the childreh when they are enteri
 
 ## API - props
 
-  * `enter` - The class to apply when a child is entering.
-  * `leave` - The class to apply when a child is leaving.
-  * `enterTimeout` - How long the enter animation takes in milliseconds (required if `enter` is specified)
-  * `leaveTimeout` - How long the leave animation takes in milliseconds (required if `leave` is specified)
+  * `name` - The class to add when the component is entering and remove when it is leaving.
+  * `enterTimeout` - Defaults to 0. How long the enter animation takes in milliseconds.
+  * `leaveTimeout` - Deafults to 0. How long the leave animation takes in milliseconds.
 
 ## License
 

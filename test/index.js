@@ -16,21 +16,17 @@ test('should work', t => {
     return <div></div>
   }
 
-  const app = run(state => <CSSTransition enter='entering' leave='leaving' enterTimeout={50} leaveTimeout={50}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
+  const app = run(state => <CSSTransition name='fade' enterTimeout={50} leaveTimeout={50}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
-  t.ok($('.entering'), 'adds entering class')
+  t.ok($('.fade'), 'adds fade class')
   setTimeout(() => {
-    t.notOk($('.entering'), 'removes entering class')
     app.dispatch(removeSelf())
-    setTimeout(() => {
-      t.ok($('.leaving'), 'adds leaving class')
 
-      setTimeout(() => {
-        t.notOk($('.leaving'), 'removes leaving class')
-        app.stop()
-        t.end()
-      }, 75)
-    })
+    setTimeout(() => {
+      t.notOk($('.fade'), 'removes fade class')
+      app.stop()
+      t.end()
+    }, 75)
   }, 75)
 })
 

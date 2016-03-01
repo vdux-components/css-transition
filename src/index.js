@@ -12,10 +12,7 @@ import map from '@f/map-array'
  */
 
 function render ({props, children}) {
-  const {enter, leave, enterTimeout, leaveTimeout} = props
-
-  assertTimeout(enter, enterTimeout, 'enter')
-  assertTimeout(leave, leaveTimeout, 'leave')
+  const {name, enterTimeout, leaveTimeout} = props
 
   return (
     <Transition>
@@ -33,7 +30,7 @@ function render ({props, children}) {
 
 const Child = {
   onCreate ({props}) {
-    const {transition, enter, enterTimeout} = props
+    const {transition, enterTimeout} = props
     return dispatch => setTimeout(() => dispatch(transition.didEnter()), enterTimeout)
   },
 
@@ -49,23 +46,12 @@ const Child = {
   },
 
   afterRender ({props}, node) {
-    const {enter, leave, transition} = props
-    const {entering, leaving} = transition
+    const {name, transition} = props
+    const {leaving} = transition
 
     applyClasses({
-      [enter]: entering,
-      [leave]: leaving
+      [name]: !leaving
     }, node)
-  }
-}
-
-/**
- * Helpers
- */
-
-function assertTimeout (cls, timeout, name) {
-  if (cls && timeout === undefined) {
-    throw new Error(`<CSSTransition/>: If you specify a ${name} transition you must also specify a ${name} timeout`)
   }
 }
 
