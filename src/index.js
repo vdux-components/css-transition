@@ -34,9 +34,7 @@ function render ({props, children}) {
 const Child = {
   onCreate ({props}) {
     const {transition, enter, enterTimeout} = props
-    if (enter) {
-      return dispatch => setTimeout(() => dispatch(transition.didEnter()), enterTimeout)
-    }
+    return dispatch => setTimeout(() => dispatch(transition.didEnter()), enterTimeout)
   },
 
   render ({props, children}) {
@@ -44,7 +42,7 @@ const Child = {
   },
 
   onUpdate (prev, next) {
-    if (!prev.props.transition.leaving && next.props.transition.leaving && next.props.leave) {
+    if (!prev.props.transition.leaving && next.props.transition.leaving) {
       const {transition, leaveTimeout} = next.props
       return dispatch => setTimeout(() => dispatch(transition.didLeave()), leaveTimeout)
     }

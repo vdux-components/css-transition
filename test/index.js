@@ -34,6 +34,22 @@ test('should work', t => {
   }, 75)
 })
 
+test('should work if nothing is passed', t => {
+  function Child () {
+    return <div class='test'></div>
+  }
+
+  const app = run(state => <CSSTransition>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
+
+  t.ok($('.test'), 'child exists')
+  app.dispatch(removeSelf())
+  setTimeout(() => {
+    t.notOk($('.test'), 'child was removed')
+    app.stop()
+    t.end()
+  }, 100)
+})
+
 /**
  * Helpers
  */
