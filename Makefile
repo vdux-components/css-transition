@@ -18,10 +18,10 @@ test: $(src) $(tests)
 		--debug \
 		-t babelify \
 		-p tap-dev-tool
-		
+
 validate: node_modules
 	@standard
-	
+
 init:
 	@git init
 	@git add .

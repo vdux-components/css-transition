@@ -2,8 +2,11 @@
  * Imports
  */
 
-import applyClasses from '@f/apply-classes'
+import handleActions from '@f/handle-actions'
+import createAction from '@f/create-action'
+import removeClass from '@f/remove-class'
 import Transition from 'vdux-transition'
+import addClass from '@f/add-class'
 import element from 'vdux/element'
 import map from '@f/map-array'
 
@@ -24,34 +27,60 @@ function render ({props, children}) {
 }
 
 /**
+ * Actions
+ */
+
+const storeEnterId = createAction('<CSSTransitionChild/>: Store enter id')
+const storeLeaveId = createAction('<CSSTrransitionChild/>: Store leave id')
+
+/**
  * Child component that takes care of adding/removing the classes
  * and calling the didEnter/didLeave functions
  */
 
 const Child = {
-  onCreate ({props}) {
+  onCreate ({props, local, key}) {
     const {transition, enterTimeout} = props
-    return dispatch => setTimeout(() => dispatch(transition.didEnter()), enterTimeout)
+    return dispatch => dispatch(local(storeEnterId)(setTimeout(() => dispatch(transition.didEnter()), enterTimeout)))
   },
 
-  render ({props, children}) {
+  render ({children}) {
     return children[0]
   },
 
   onUpdate (prev, next) {
     if (!prev.props.transition.leaving && next.props.transition.leaving) {
       const {transition, leaveTimeout} = next.props
-      return dispatch => setTimeout(() => dispatch(transition.didLeave()), leaveTimeout)
+
+      return dispatch => {
+        const id = setTimeout(() => dispatch(transition.didLeave()), leaveTimeout)
+        dispatch(next.local(storeLeaveId)(id))
+      }
+    } else if (prev.props.transition.leaving && !next.props.transition.leaving) {
+      return () => clearTimeout(next.state.leaveId)
+    }
+  },
+
+  reducer: handleActions({
+    [storeEnterId]: (state, enterId) => ({...state, enterId}),
+    [storeLeaveId]: (state, leaveId) => ({...state, leaveId})
+  }),
+
+  onRemove ({key, state}) {
+    return () => {
+      clearTimeout(state.enterId)
+      clearTimeout(state.leaveId)
     }
   },
 
   afterRender ({props}, node) {
     const {name, transition} = props
-    const {leaving} = transition
-
-    applyClasses({
-      [name]: !leaving
-    }, node)
+    const {leaving, entering} = transition
+    setTimeout(() => {
+      leaving
+        ? removeClass(name, node)
+        : addClass(name, node)
+    })
   }
 }
 
