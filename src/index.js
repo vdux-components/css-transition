@@ -6,6 +6,7 @@ import handleActions from '@f/handle-actions'
 import createAction from '@f/create-action'
 import removeClass from '@f/remove-class'
 import Transition from 'vdux-transition'
+import isNumber from '@f/is-number'
 import addClass from '@f/add-class'
 import element from 'vdux/element'
 import map from '@f/map-array'
@@ -15,8 +16,6 @@ import map from '@f/map-array'
  */
 
 function render ({props, children}) {
-  const {name, enterTimeout, leaveTimeout} = props
-
   return (
     <Transition>
       {
@@ -39,9 +38,16 @@ const storeLeaveId = createAction('<CSSTrransitionChild/>: Store leave id')
  */
 
 const Child = {
+  getProps (props) {
+    return {...props, timeout: props.timeout || 0}
+  },
+
   onCreate ({props, local, key}) {
-    const {transition, enterTimeout} = props
-    return dispatch => dispatch(local(storeEnterId)(setTimeout(() => dispatch(transition.didEnter()), enterTimeout)))
+    const {$transition, timeout} = props
+    const {didEnter} = $transition
+    const enterTimeout = getTimeout(timeout, 'enter')
+
+    return dispatch => dispatch(local(storeEnterId)(setTimeout(() => dispatch(didEnter()), enterTimeout)))
   },
 
   render ({children}) {
@@ -49,14 +55,16 @@ const Child = {
   },
 
   onUpdate (prev, next) {
-    if (!prev.props.transition.leaving && next.props.transition.leaving) {
-      const {transition, leaveTimeout} = next.props
+    if (!prev.props.$transition.leaving && next.props.$transition.leaving) {
+      const {$transition, timeout} = next.props
+      const {didLeave} = $transition
+      const leaveTimeout = getTimeout(timeout, 'leave')
 
       return dispatch => {
-        const id = setTimeout(() => dispatch(transition.didLeave()), leaveTimeout)
+        const id = setTimeout(() => dispatch(didLeave()), leaveTimeout)
         dispatch(next.local(storeLeaveId)(id))
       }
-    } else if (prev.props.transition.leaving && !next.props.transition.leaving) {
+    } else if (prev.props.$transition.leaving && !next.props.$transition.leaving) {
       return () => clearTimeout(next.state.leaveId)
     }
   },
@@ -74,14 +82,33 @@ const Child = {
   },
 
   afterRender ({props}, node) {
-    const {name, transition} = props
-    const {leaving, entering} = transition
-    setTimeout(() => {
-      leaving
-        ? removeClass(name, node)
-        : addClass(name, node)
-    })
+    const {$transition} = props
+    const {leaving, entering} = $transition
+
+    if (entering) {
+      addClass('enter', node)
+      setTimeout(() => addClass('enter-active', node))
+    } else {
+      removeClass('enter', node)
+      removeClass('enter-active', node)
+    }
+
+    if (leaving) {
+      addClass('leave', node)
+      setTimeout(() => addClass('leave-active', node))
+    } else {
+      removeClass('leave', node)
+      removeClass('leave-active', node)
+    }
   }
+}
+
+/**
+ * Helpers
+ */
+
+function getTimeout (timeout, name) {
+  return isNumber(timeout) ? timeout : timeout[name]
 }
 
 /**

@@ -16,20 +16,56 @@ Use this component to apply classes to your nodes when they are being added/remo
 ```javascript
 function render () {
   return (
-    <CSSTransition name='fade' enterTimeout={500} leaveTimeout={500}>
+    <CSSTransition timeout={500}>
       <Tooltip />
     </CSSTransition>
   )
 }
 ```
 
-The `fade_in` class will be applied to each of the childreh when they are entering, and the `fade_out` class will be applied when they are leaving.
+Each child of `<CSSTransition/>` will have the following classes added to it:
+
+  * `enter` - Immediately on creation
+  * `enter-active` - On the next tick after the `enter` class is added
+  * `leave` - When the component begins leaving
+  * `leave-active` - On th enext tick after the `leave` class is added
 
 ## API - props
 
-  * `name` - The class to add when the component is entering and remove when it is leaving.
-  * `enterTimeout` - Defaults to 0. How long the enter animation takes in milliseconds.
-  * `leaveTimeout` - Deafults to 0. How long the leave animation takes in milliseconds.
+  * `timeout` - (Object|Number). If you specify a number, it'll be used as both the `enter` and `leave` timeout lengths in milliseconds. You may alternatively passn an object with `enter` and `leave` keys to specify them independently.
+
+## Fade example (using [jss-simple](https://github.com/ashaffer/jss-simple) for css)
+
+```javascript
+import css from 'jss-simple'
+
+function render () {
+  return (
+    <CSSTransition timeout={150}>
+      <div class={fade}>I'm fading in</div>
+    </CSSTransition>
+  )
+}
+
+const {fade} = css({
+  fade: {
+    '&.enter': {
+      opacity: 0,
+      '&.enter-active': {
+        transition: 'opacity .15s linear',
+        opacity: 1
+      },
+    },
+    '&.leave': {
+      opacity: 1,
+      '&.leave-active': {
+        opacity: 0,
+        transition: 'opacity .15s linear'
+      }
+    }
+  }
+})
+```
 
 ## License
 

@@ -16,16 +16,25 @@ import CSSTransition from '../src'
 
 test('should work', function *(t) {
   function Child () { return <div></div> }
-  const app = run(state => <CSSTransition name='fade' enterTimeout={50} leaveTimeout={50}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
+  const app = run(state => <CSSTransition timeout={50}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
+  t.ok($('.enter'), 'adds enter class')
   yield sleep(0)
-  t.ok($('.fade'), 'adds fade class')
+  t.ok($('.enter-active'), 'adds enter class')
 
   yield sleep(75)
+  t.notOk($('.enter'), 'removes enter class')
+  t.notOk($('.enter-active'), 'removes enter-active class')
+
   app.dispatch(removeSelf())
+  yield sleep(0)
+  t.ok($('.leave'), 'adds leave class')
+  yield sleep(0)
+  t.ok($('.leave-active'), 'adds leave-active class')
 
   yield sleep(75)
-  t.notOk($('.fade'), 'removes fade class')
+  t.notOk($('.leave'), 'removes leave class')
+  t.notOk($('.leave-active'), 'removes leave-active class')
 
   app.stop()
 })
@@ -42,9 +51,9 @@ test('should work if nothing is passed', function *(t) {
   app.stop()
 })
 
-test.only('should work if component leaves before it finishes entering', function *(t) {
+test('should work if component leaves before it finishes entering', function *(t) {
   function Child () { return <div class='test'></div> }
-  const app = run(state => <CSSTransition name='anim' enterTimeout={1000} leaveTimeout={100}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
+  const app = run(state => <CSSTransition timeout={{enter: 1000, leave: 100}}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
   t.ok($('.test'), 'child exists')
   app.dispatch(removeSelf())
