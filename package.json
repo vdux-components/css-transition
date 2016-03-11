@@ -2,7 +2,7 @@
   "name": "vdux-css-transition",
   "description": "CSSTransition component for adding classes to an element while it is transitioning",
   "repository": "git://github.com/vdux-components/css-transition.git",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
