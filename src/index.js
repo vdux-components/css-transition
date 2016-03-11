@@ -7,6 +7,7 @@ import createAction from '@f/create-action'
 import removeClass from '@f/remove-class'
 import Transition from 'vdux-transition'
 import isNumber from '@f/is-number'
+import hasClass from '@f/has-class'
 import addClass from '@f/add-class'
 import element from 'vdux/element'
 import map from '@f/map-array'
@@ -84,22 +85,27 @@ const Child = {
   afterRender ({props}, node) {
     const {$transition} = props
     const {leaving, entering} = $transition
+    const hasEnter = hasClass('enter', node)
+    const hasLeave = hasClass('leave', node)
+    const nextTick = []
 
-    if (entering) {
+    if (entering && !hasEnter) {
       addClass('enter', node)
-      setTimeout(() => addClass('enter-active', node))
-    } else {
+      nextTick.push(() => addClass('enter-active', node))
+    } else if (hasEnter) {
       removeClass('enter', node)
       removeClass('enter-active', node)
     }
 
-    if (leaving) {
+    if (leaving && !hasLeave) {
       addClass('leave', node)
-      setTimeout(() => addClass('leave-active', node))
-    } else {
+      nextTick.push(() => addClass('leave-active', node))
+    } else if (hasLeave) {
       removeClass('leave', node)
       removeClass('leave-active', node)
     }
+
+    return nextTick
   }
 }
 

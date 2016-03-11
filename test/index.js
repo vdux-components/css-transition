@@ -18,9 +18,10 @@ test('should work', function *(t) {
   function Child () { return <div></div> }
   const app = run(state => <CSSTransition timeout={50}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
+  yield sleep(0)
   t.ok($('.enter'), 'adds enter class')
   yield sleep(0)
-  t.ok($('.enter-active'), 'adds enter class')
+  t.ok($('.enter-active'), 'adds enter-active class')
 
   yield sleep(75)
   t.notOk($('.enter'), 'removes enter class')
@@ -43,6 +44,7 @@ test('should work if nothing is passed', function *(t) {
   function Child () { return <div class='test'></div> }
   const app = run(state => <CSSTransition>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
+  yield sleep(0)
   t.ok($('.test'), 'child exists')
   app.dispatch(removeSelf())
 
@@ -55,6 +57,7 @@ test('should work if component leaves before it finishes entering', function *(t
   function Child () { return <div class='test'></div> }
   const app = run(state => <CSSTransition timeout={{enter: 1000, leave: 100}}>{state.children}</CSSTransition>, {children: [<Child key='test' />]})
 
+  yield sleep(0)
   t.ok($('.test'), 'child exists')
   app.dispatch(removeSelf())
 
@@ -76,12 +79,11 @@ test('should work if component leaves before it finishes entering', function *(t
  */
 
 function run (app, initialState = {}) {
-  return vdux({
-    app,
-    reducer,
-    // middleware: [logger()],
-    initialState
-  })
+  const {subscribe, render, dispatch} = vdux({reducer, initialState})
+  return {
+    stop: subscribe(state => render(app(state))),
+    dispatch
+  }
 }
 
 function $ (selector) {
