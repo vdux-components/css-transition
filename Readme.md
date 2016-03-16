@@ -42,7 +42,7 @@ import css from 'jss-simple'
 function render () {
   return (
     <CSSTransition timeout={150}>
-      <div class={fade}>I'm fading in</div>
+      <div class={fade}>I am fading in</div>
     </CSSTransition>
   )
 }
